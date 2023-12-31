@@ -8,7 +8,7 @@ return {
 
     elixir.setup {
       nextls = {
-        enable = false,         -- defaults to false
+        enable = false, -- defaults to false
         init_options = {
           mix_env = "dev",
           mix_target = "host",
@@ -21,19 +21,18 @@ return {
         settings = elixirls.settings {
           dialyzerEnabled = true,
           fetchDeps = true,
-          enableTestLenses = false,
+          enableTestLenses = true,
           suggestSpecs = true
         },
-        on_attach = function(client, bufnr)
-          vim.keymap.set("n", "<space>Ef", ":ElixirFromPipe<cr>",
-            { buffer = true, noremap = true })
-          vim.keymap.set("n", "<space>Et", ":ElixirToPipe<cr>",
-            { buffer = true, noremap = tre })
-          vim.keymap.set("v", "<space>Em", ":ElixirExpandMacro<cr>",
-            { buffer = true, noremap = true })
+        on_attach = function(_client, _bufnr)
+          local opts = { buffer = true, noremap = true }
+          vim.keymap.set("n", "<space>Ef", ":ElixirFromPipe<cr>", opts)
+          vim.keymap.set("n", "<space>Et", ":ElixirToPipe<cr>", opts)
+          vim.keymap.set("n", "<space>Em", ":ElixirExpandMacro<cr>", opts)
+          vim.keymap.set("n", "K", "<cmd>lua vim.lsp.buf.hover()<cr>", opts)
+          vim.keymap.set("n", "gD", "<cmd>lua vim.lsp.buf.implementation()<cr>", opts)
 
-          vim.api.nvim_command(
-            "au BufWritePost *.ex,*.exs,*.heex lua vim.lsp.buf.format()")
+          vim.api.nvim_command("au BufWritePost *.ex,*.exs,*.heex lua vim.lsp.buf.format()")
         end
       }
     }
