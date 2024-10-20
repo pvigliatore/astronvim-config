@@ -11,16 +11,11 @@ return {
       init = function() vim.g.gruvbox_material_background = "hard" end
   },
 
-  --
-  -- Choose the desired theme
-  -- 
-  -- {
-  --   "astroui",
-  --   opts = function(_, opts)
-  --     opts.colorscheme = "everforest"
-  --     return opts
-  --   end
-  -- }
+  -- Go debugger
+  {
+    "leoluz/nvim-dap-go",
+    config = function(_, _) require('dap-go').setup() end
+  }
 }
 
 -- if true then return {} end -- WARN: REMOVE THIS LINE TO ACTIVATE THIS FILE

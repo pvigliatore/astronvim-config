@@ -28,7 +28,7 @@ return {
     options = {
       opt = { -- vim.opt.<key>
         list = true,
-        listchars = "tab:|→,space:.",
+        listchars = "tab:⇥ ,space:.",
         relativenumber = false, -- sets vim.opt.relativenumber
         number = true, -- sets vim.opt.number
         spell = false, -- sets vim.opt.spell
