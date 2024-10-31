@@ -1,6 +1,12 @@
 -- Navigate between words in normal mode
-vim.keymap.set('n', '<A-Left>', 'b')
-vim.keymap.set('n', '<A-Right>', 'w')
+vim.keymap.set("n", "<A-Left>", "b")
+vim.keymap.set("n", "<A-Right>", "w")
+
+-- Keymaps for oil.nvim
+vim.keymap.set("n", "-", "<CMD>Oil<CR>", { desc = "Open parent directory" })
+
+-- Select all text
+vim.keymap.set("n", "<C-a>", "ggVG", { desc = "Select All" })
 
 if true then return end -- WARN: REMOVE THIS LINE TO ACTIVATE THIS FILE
 

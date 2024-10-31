@@ -31,6 +31,7 @@ return {
       },
       credo = { enable = true },
       elixirls = {
+        cmd = "/opt/homebrew/bin/elixir-ls",
         -- default settings, use the `settings` function to override settings
         enable = true,
         settings = elixirls.settings {

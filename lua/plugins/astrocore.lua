@@ -26,18 +26,19 @@ return {
     },
     -- vim options can be configured here
     options = {
-      opt = { -- vim.opt.<key>
-        list = true,
-        listchars = "tab:⇥ ,space:.",
-        relativenumber = false, -- sets vim.opt.relativenumber
-        number = true, -- sets vim.opt.number
-        spell = false, -- sets vim.opt.spell
-        signcolumn = "yes", -- sets vim.opt.signcolumn to yes
-        wrap = false, -- sets vim.opt.wrap
+      -- vim.opt.<key>
+      opt = {
+        -- list = true,
+        -- listchars = "tab:⇥ ,lead:.",
+        relativenumber = false,
+        number = true,
+        spell = false,
+        signcolumn = "yes",
+        wrap = false,
       },
       g = { -- vim.g.<key>
         -- configure global vim variables (vim.g)
-        -- NOTE: `mapleader` and `maplocalleader` must be set in the AstroNvim opts or before `lazy.setup`
+        -- NOTE: `mapleader` and `maplocalleader` must be set in the AstroNvim opts or before `lazy.setup` i am going to write a heck of a lot to the end of this line
         -- This can be found in the `lua/lazy_setup.lua` file
       },
     },
