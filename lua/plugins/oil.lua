@@ -1,5 +1,5 @@
 return {
-  'stevearc/oil.nvim',
+  "stevearc/oil.nvim",
   opts = {
     -- Oil will take over directory buffers (e.g. `vim .` or `:e src/`)
     -- Set to false if you want some other plugin (e.g. netrw) to open when you edit directories.
@@ -68,6 +68,7 @@ return {
       ["<C-t>"] = { "actions.select", opts = { tab = true }, desc = "Open the entry in new tab" },
       ["<C-p>"] = "actions.preview",
       ["<C-c>"] = "actions.close",
+      ["<Esc>"] = "actions.close",
       ["<C-l>"] = "actions.refresh",
       ["-"] = "actions.parent",
       ["_"] = "actions.open_cwd",
@@ -84,13 +85,9 @@ return {
       -- Show files and directories that start with "."
       show_hidden = false,
       -- This function defines what is considered a "hidden" file
-      is_hidden_file = function(name, bufnr)
-        return vim.startswith(name, ".")
-      end,
+      is_hidden_file = function(name, bufnr) return vim.startswith(name, ".") end,
       -- This function defines what will never be shown, even when `show_hidden` is set
-      is_always_hidden = function(name, bufnr)
-        return false
-      end,
+      is_always_hidden = function(name, bufnr) return false end,
       -- Sort file names in a more intuitive order for humans. Is less performant,
       -- so you may want to set to false if you work with large directories.
       natural_order = true,
@@ -106,15 +103,9 @@ return {
     -- EXPERIMENTAL support for performing file operations with git
     git = {
       -- Return true to automatically git add/mv/rm files
-      add = function(path)
-        return false
-      end,
-      mv = function(src_path, dest_path)
-        return false
-      end,
-      rm = function(path)
-        return false
-      end,
+      add = function(path) return false end,
+      mv = function(src_path, dest_path) return false end,
+      rm = function(path) return false end,
     },
     -- Configuration for the floating window in oil.open_float
     float = {
@@ -132,9 +123,7 @@ return {
       preview_split = "auto",
       -- This is the config that will be passed to nvim_open_win.
       -- Change values here to customize the layout
-      override = function(conf)
-        return conf
-      end,
+      override = function(conf) return conf end,
     },
     -- Configuration for the actions floating preview window
     preview = {
