@@ -44,8 +44,8 @@ vim.api.nvim_create_autocmd("LspAttach", {
 require("lspconfig").gopls.setup {
   settings = {
     gopls = {
-      gofumpt = true,
       buildFlags = { "-tags=integration,paper" },
+      gofumpt = true,
     },
   },
 }
