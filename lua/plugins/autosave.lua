@@ -5,5 +5,6 @@ return {
     events = { "CursorHold", "InsertLeave", "BufLeave" },
     silent = false,
     exclude_ft = { "neo-tree" },
+    timeout = 100,
   },
 }
