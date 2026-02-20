@@ -80,7 +80,29 @@ return {
           },
           -- External commands still require approval (default)
           ["cmd_runner"] = {
-            opts = { require_approval_before = true },
+            opts = {
+              requires_approval = function(input)
+                local cmd = vim.trim(input.cmd)
+
+                -- Block anything with chaining operators or redirection
+                local has_chain = cmd:match("[;|&>]") ~= nil
+
+                -- Simple whitelisted commands (any arguments allowed)
+                local simple = { "helm", "cd" }
+                local first = vim.split(cmd, " ")[1]
+                for _, allowed in ipairs(simple) do
+                  if first == allowed then return false end
+                end
+
+                -- grep: allow only when not chained/redirected
+                if first == "grep" and not has_chain then return false end
+
+                -- go test: allow the specific subcommand only
+                if cmd:match("^go%s+test") and not has_chain then return false end
+
+                return true
+              end,
+            },
           },
         },
       },
