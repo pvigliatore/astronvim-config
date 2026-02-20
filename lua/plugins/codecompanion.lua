@@ -14,6 +14,11 @@ return {
     }},
   },
   opts = {
+    display = {
+      diff = {
+        enabled = false,
+      },
+    },
     rules = {
       -- Custom rule group to load all files from .rules folder
       project_rules = {
