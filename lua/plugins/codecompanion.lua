@@ -21,18 +21,15 @@ return {
       },
     },
     rules = {
-      -- Custom rule group to load all files from .rules folder
-      project_rules = {
-        description = "Project-specific rules from .rules folder",
+      project_skills = {
+        description = "Find skills in project folders",
         files = {
-          { path = ".rules", files = "*.md" },
-          { path = ".skills", files = "*.md" },
+          "**/.skills/*.md",
         },
       },
       opts = {
         chat = {
-          -- Autoload both default rules and project-specific rules
-          autoload = { "default", "project_rules" },
+          autoload = { "default" },
           enabled = true,
         },
       },
