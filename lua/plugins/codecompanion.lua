@@ -7,6 +7,7 @@ return {
       mappings = {
         n = {
           ["<Leader>a"] = { desc = "AI Assistant" },
+          ["<Leader>aa"] = { "<Cmd>CodeCompanionActions<CR>", desc = "Actions Pallete" },
           ["<Leader>ac"] = { "<Cmd>CodeCompanionChat<CR>", desc = "New Chat" },
           ["<Leader>at"] = { "<Cmd>CodeCompanionChat Toggle<CR>", desc = "Toggle Chat" },
         },
@@ -43,6 +44,12 @@ return {
           model = "claude-opus-4.6",
         },
         tools = {
+          opts = {
+            auto_submit_errors = true,
+            auto_submit_success = true,
+            default_tools = {"full_stack_dev"},
+          },
+
           -- File operations don't require approval
           ["insert_edit_into_file"] = {
             opts = {
