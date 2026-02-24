@@ -3,16 +3,19 @@ return {
   dependencies = {
     "nvim-lua/plenary.nvim",
     "nvim-treesitter/nvim-treesitter",
-    { "AstroNvim/astrocore", opts = {
-      mappings = {
-        n = {
-          ["<Leader>a"] = { desc = "AI Assistant" },
-          ["<Leader>aa"] = { "<Cmd>CodeCompanionActions<CR>", desc = "Actions Pallete" },
-          ["<Leader>ac"] = { "<Cmd>CodeCompanionChat<CR>", desc = "New Chat" },
-          ["<Leader>at"] = { "<Cmd>CodeCompanionChat Toggle<CR>", desc = "Toggle Chat" },
+    {
+      "AstroNvim/astrocore",
+      opts = {
+        mappings = {
+          n = {
+            ["<Leader>a"] = { desc = "AI Assistant" },
+            ["<Leader>aa"] = { "<Cmd>CodeCompanionActions<CR>", desc = "Actions Pallete" },
+            ["<Leader>ac"] = { "<Cmd>CodeCompanionChat<CR>", desc = "New Chat" },
+            ["<Leader>at"] = { "<Cmd>CodeCompanionChat Toggle<CR>", desc = "Toggle Chat" },
+          },
         },
       },
-    }},
+    },
   },
   opts = {
     display = {
@@ -44,7 +47,7 @@ return {
           opts = {
             auto_submit_errors = true,
             auto_submit_success = true,
-            default_tools = {"full_stack_dev"},
+            default_tools = { "full_stack_dev" },
           },
 
           -- File operations don't require approval
@@ -89,7 +92,7 @@ return {
                 local cmd = vim.trim(input.cmd)
 
                 -- Block anything with chaining operators or redirection
-                local has_chain = cmd:match("[;|&>]") ~= nil
+                local has_chain = cmd:match "[;|&>]" ~= nil
 
                 -- Simple whitelisted commands (any arguments allowed)
                 local simple = { "helm", "cd" }
@@ -102,7 +105,7 @@ return {
                 if first == "grep" and not has_chain then return false end
 
                 -- go test: allow the specific subcommand only
-                if cmd:match("^go%s+test") and not has_chain then return false end
+                if cmd:match "^go%s+test" and not has_chain then return false end
 
                 return true
               end,
