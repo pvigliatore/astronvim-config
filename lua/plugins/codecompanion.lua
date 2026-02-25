@@ -24,15 +24,19 @@ return {
       },
     },
     rules = {
+      cursor_rules = {
+        description = "Detect rules in the .cursor/rules/ directory",
+        files = { ".cursor/rules/**/*.md" },
+      },
       project_skills = {
         description = "Find skills in project folders",
         files = {
-          "**/.skills/*.md",
+          ".cursor/skills/**/*.md",
         },
       },
       opts = {
         chat = {
-          autoload = { "default" },
+          autoload = { "default", "cursor_rules" },
           enabled = true,
         },
       },
