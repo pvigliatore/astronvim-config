@@ -88,26 +88,113 @@ return {
           -- External commands still require approval (default)
           ["cmd_runner"] = {
             opts = {
-              requires_approval = function(input)
-                local cmd = vim.trim(input.cmd)
+              require_approval_before = function(tool, _tools)
+                local cmd = vim.trim(tool.args.cmd)
 
-                -- Block anything with chaining operators or redirection
-                local has_chain = cmd:match "[;|&>]" ~= nil
+                -- Split the full command into segments on shell operators
+                -- so we can check every part of a chained command.
+                local segments = vim.split(cmd, "[;|&]+", { trimempty = true })
 
-                -- Simple whitelisted commands (any arguments allowed)
-                local simple = { "helm", "cd" }
-                local first = vim.split(cmd, " ")[1]
-                for _, allowed in ipairs(simple) do
-                  if first == allowed then return false end
+                local denied_cmds = {
+                  "chmod",
+                  "chown",
+                  "dd",
+                  "kill",
+                  "killall",
+                  "mkfs",
+                  "pkill",
+                  "reboot",
+                  "rm",
+                  "rmdir",
+                  "shutdown",
+                  "sudo",
+                }
+                local denied_git = {
+                  "clean",
+                  "reset",
+                }
+
+                -- Check every segment for denied commands
+                for _, seg in ipairs(segments) do
+                  seg = vim.trim(seg)
+                  local seg_first = vim.split(seg, " ")[1]
+
+                  for _, d in ipairs(denied_cmds) do
+                    if seg_first == d then return true end
+                  end
+
+                  -- Destructive git subcommands
+                  if seg_first == "git" then
+                    for _, sub in ipairs(denied_git) do
+                      if seg:match("^git%s+" .. sub) then return true end
+                    end
+                    if seg:match "^git%s+push%s+%-%-force" or seg:match "^git%s+push%s+%-f%s" then return true end
+                    if seg:match "^git%s+checkout%s+%-%-?%s+%." then return true end
+                  end
+
+                  -- Block piping curl/wget into a shell
+                  if seg:match "curl.-|" or seg:match "wget.-|" then return true end
                 end
 
-                -- grep: allow only when not chained/redirected
-                if first == "grep" and not has_chain then return false end
+                -- ── Allowlist: auto-approve if every segment is allowed ──
+                local simple_allowed = {
+                  ["cat"] = true,
+                  ["cd"] = true,
+                  ["command"] = true,
+                  ["diff"] = true,
+                  ["echo"] = true,
+                  ["env"] = true,
+                  ["file"] = true,
+                  ["find"] = true,
+                  ["grep"] = true,
+                  ["head"] = true,
+                  ["helm"] = true,
+                  ["jq"] = true,
+                  ["less"] = true,
+                  ["ls"] = true,
+                  ["make"] = true,
+                  ["printenv"] = true,
+                  ["printf"] = true,
+                  ["stat"] = true,
+                  ["tail"] = true,
+                  ["type"] = true,
+                  ["wc"] = true,
+                  ["which"] = true,
+                  ["yq"] = true,
+                }
+                local sub_allowed = {
+                  go = { "test", "vet", "build", "mod", "fmt", "run" },
+                  git = { "status", "log", "diff", "show", "branch", "stash" },
+                  kubectl = { "get", "describe", "logs", "explain", "api%-resources" },
+                  docker = { "ps", "images", "logs", "inspect" },
+                }
 
-                -- go test: allow the specific subcommand only
-                if cmd:match "^go%s+test" and not has_chain then return false end
+                local all_allowed = true
+                for _, seg in ipairs(segments) do
+                  seg = vim.trim(seg)
+                  local seg_first = vim.split(seg, " ")[1]
 
-                return true
+                  if simple_allowed[seg_first] then
+                    -- ok
+                  elseif sub_allowed[seg_first] then
+                    local matched = false
+                    for _, sub in ipairs(sub_allowed[seg_first]) do
+                      if seg:match("^" .. seg_first .. "%s+" .. sub) then
+                        matched = true
+                        break
+                      end
+                    end
+                    if not matched then
+                      all_allowed = false
+                      break
+                    end
+                  else
+                    all_allowed = false
+                    break
+                  end
+                end
+
+                return not all_allowed
               end,
             },
           },
