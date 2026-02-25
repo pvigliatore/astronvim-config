@@ -4,16 +4,31 @@ return {
     picker = {
       sources = {
         files = {
-          exclude = { "vendor" },
+          hidden = true,
+          exclude = { "vendor/" },
         },
         grep = {
-          exclude = { "vendor" },
+          hidden = true,
+          exclude = { "vendor/" },
         },
       },
     },
   },
   keys = {
-    { "<Leader>fF", function() Snacks.picker.files { exclude = {} } end, desc = "Find files (all)" },
-    { "<Leader>fG", function() Snacks.picker.grep { exclude = {} } end, desc = "Find files (all)" },
+    {
+      "<Leader>fF",
+      function() Snacks.picker.files { exclude = {} } end,
+      desc = "Find all files",
+    },
+    {
+      "<Leader>fG",
+      function() Snacks.picker.files { exclude = {} } end,
+      desc = "Find all files (no filter)",
+    },
+    {
+      "<Leader>fW",
+      function() Snacks.picker.grep { exclude = {} } end,
+      desc = "Find words in all files",
+    },
   },
 }
