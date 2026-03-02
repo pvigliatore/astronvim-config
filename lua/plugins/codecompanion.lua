@@ -17,6 +17,29 @@ return {
       },
     },
   },
+  init = function()
+    -- Pause auto-save while CodeCompanion tools are running to prevent
+    -- writes that conflict with in-flight file edits.
+    local group = vim.api.nvim_create_augroup("CodeCompanionAutoSave", { clear = true })
+
+    vim.api.nvim_create_autocmd("User", {
+      group = group,
+      pattern = "CodeCompanionToolsStarted",
+      callback = function()
+        -- Clear the plugin's augroup to stop all auto-save triggers
+        vim.api.nvim_create_augroup("AutoSavePlug", { clear = true })
+      end,
+    })
+    vim.api.nvim_create_autocmd("User", {
+      group = group,
+      pattern = "CodeCompanionToolsFinished",
+      callback = function()
+        -- Re-run setup to restore the plugin's autocmds
+        local ok, auto_save = pcall(require, "auto-save")
+        if ok then auto_save.setup() end
+      end,
+    })
+  end,
   opts = {
     display = {
       diff = {
