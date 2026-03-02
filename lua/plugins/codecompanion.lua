@@ -150,6 +150,7 @@ return {
                   ["env"] = true,
                   ["file"] = true,
                   ["find"] = true,
+                  ["golangci-lint"] = true,
                   ["grep"] = true,
                   ["head"] = true,
                   ["helm"] = true,
