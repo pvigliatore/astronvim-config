@@ -4,7 +4,7 @@ return {
   opts = {
     events = { "CursorHold", "InsertLeave", "BufLeave" },
     silent = false,
-    exclude_ft = { "neo-tree" },
+    exclude_ft = { "codecompanion", "neo-tree" },
     timeout = 100,
   },
 }
