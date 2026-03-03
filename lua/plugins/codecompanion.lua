@@ -54,6 +54,12 @@ return {
           "~/projects/ai-prompts/rules/**/*.md",
         },
       },
+      portfolio_history = {
+        description="Skills relevant to the portfolio history project",
+        files = {
+          "~/projects/ai-prompts/skills/portfolio-history/*.md",
+        }
+      },
       project_skills = {
         description = "Find skills in project folders",
         files = {
