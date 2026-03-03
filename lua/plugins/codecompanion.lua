@@ -47,9 +47,12 @@ return {
       },
     },
     rules = {
-      cursor_rules = {
-        description = "Detect rules in the .cursor/rules/ directory",
-        files = { ".cursor/rules/**/*.md" },
+      my_rules = {
+        description = "Rules that should always be applied",
+        files = {
+          ".cursor/rules/**/*.md",
+          "~/projects/ai-prompts/rules/**/*.md",
+        },
       },
       project_skills = {
         description = "Find skills in project folders",
@@ -59,7 +62,7 @@ return {
       },
       opts = {
         chat = {
-          autoload = { "default", "cursor_rules" },
+          autoload = { "default", "my_rules" },
           enabled = true,
         },
       },
