@@ -25,9 +25,20 @@ return {
     vim.api.nvim_create_autocmd("User", {
       group = group,
       pattern = "CodeCompanionToolsStarted",
-      callback = function()
+      callback = function(request)
         -- Clear the plugin's augroup to stop all auto-save triggers
         vim.api.nvim_create_augroup("AutoSavePlug", { clear = true })
+
+        -- Pre-populate the approval cache for insert_edit_into_file so that
+        -- the tool's `is_approved` check passes and buffers are saved to disk
+        -- automatically after edits (via `silent write` in edit_buffer).
+        local chat_bufnr = request.data and request.data.bufnr
+        if chat_bufnr then
+          local ok, approvals = pcall(require, "codecompanion.interactions.chat.tools.approvals")
+          if ok then
+            approvals:always(chat_bufnr, { tool_name = "insert_edit_into_file" })
+          end
+        end
       end,
     })
     vim.api.nvim_create_autocmd("User", {
