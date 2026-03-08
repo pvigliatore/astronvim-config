@@ -35,9 +35,7 @@ return {
         local chat_bufnr = request.data and request.data.bufnr
         if chat_bufnr then
           local ok, approvals = pcall(require, "codecompanion.interactions.chat.tools.approvals")
-          if ok then
-            approvals:always(chat_bufnr, { tool_name = "insert_edit_into_file" })
-          end
+          if ok then approvals:always(chat_bufnr, { tool_name = "insert_edit_into_file" }) end
         end
       end,
     })
@@ -66,10 +64,10 @@ return {
         },
       },
       portfolio_history = {
-        description="Skills relevant to the portfolio history project",
+        description = "Skills relevant to the portfolio history project",
         files = {
           "~/projects/ai-prompts/skills/portfolio-history/*.md",
-        }
+        },
       },
       project_skills = {
         description = "Find skills in project folders",
@@ -138,40 +136,60 @@ return {
               require_approval_before = function(tool, _tools)
                 local cmd = vim.trim(tool.args.cmd)
 
-                -- Split the full command into segments on shell operators
-                -- so we can check every part of a chained command.
-                local segments = vim.split(cmd, "[;|&]+", { trimempty = true })
+                -- Strip harmless shell redirections before splitting so they
+                -- don't create bogus segments (e.g. "2>&1" splitting on "&").
+                local clean = cmd:gsub("%d*>[>&]?[%d/a-zA-Z._-]*", "")
 
+                -- Split on actual shell operators: ;  |  ||  &&
+                -- This avoids splitting on & inside redirections.
+                local segments = {}
+                for seg in clean:gmatch "[^;|&]+" do
+                  seg = vim.trim(seg)
+                  if #seg > 0 then table.insert(segments, seg) end
+                end
+
+                -- ── Denylist: always require approval ──
                 local denied_cmds = {
+                  "bash",
+                  "chflags",
                   "chmod",
                   "chown",
+                  "csh",
                   "dd",
+                  "defaults",
+                  "diskutil",
+                  "eval",
+                  "exec",
+                  "fish",
                   "kill",
                   "killall",
+                  "launchctl",
+                  "ln",
                   "mkfs",
+                  "mv",
+                  "nohup",
                   "pkill",
                   "reboot",
                   "rm",
                   "rmdir",
+                  "sh",
                   "shutdown",
+                  "source",
                   "sudo",
+                  "xargs",
+                  "zsh",
                 }
-                local denied_git = {
-                  "clean",
-                  "reset",
-                }
+                local denied_git = { "clean", "reset" }
 
-                -- Check every segment for denied commands
                 for _, seg in ipairs(segments) do
-                  seg = vim.trim(seg)
-                  local seg_first = vim.split(seg, " ")[1]
+                  local first = vim.split(seg, " ")[1]
 
                   for _, d in ipairs(denied_cmds) do
-                    if seg_first == d then return true end
+                    if first == d then return true end
                   end
 
                   -- Destructive git subcommands
-                  if seg_first == "git" then
+                  if first == "git" then
                     for _, sub in ipairs(denied_git) do
                       if seg:match("^git%s+" .. sub) then return true end
                     end
@@ -181,18 +199,31 @@ return {
 
                   -- Block piping curl/wget into a shell
                   if seg:match "curl.-|" or seg:match "wget.-|" then return true end
+
+                  -- Block wrappers used to invoke a denied command indirectly
+                  -- e.g. "env bash -c ..." or "command rm -rf"
+                  for _, d in ipairs(denied_cmds) do
+                    if seg:match("%s" .. d .. "%s") or seg:match("%s" .. d .. "$") then return true end
+                  end
                 end
 
                 -- ── Allowlist: auto-approve if every segment is allowed ──
+                -- Commands that are safe regardless of arguments.
                 local simple_allowed = {
+                  ["basename"] = true,
                   ["cat"] = true,
                   ["cd"] = true,
                   ["command"] = true,
+                  ["cut"] = true,
+                  ["date"] = true,
                   ["diff"] = true,
+                  ["dirname"] = true,
                   ["echo"] = true,
                   ["env"] = true,
                   ["file"] = true,
                   ["find"] = true,
+                  ["gofmt"] = true,
+                  ["gofumpt"] = true,
                   ["golangci-lint"] = true,
                   ["grep"] = true,
                   ["head"] = true,
@@ -203,40 +234,37 @@ return {
                   ["make"] = true,
                   ["printenv"] = true,
                   ["printf"] = true,
+                  ["pwd"] = true,
+                  ["readlink"] = true,
+                  ["realpath"] = true,
+                  ["sort"] = true,
                   ["stat"] = true,
+                  ["stylua"] = true,
                   ["tail"] = true,
+                  ["tee"] = true,
+                  ["tr"] = true,
+                  ["tree"] = true,
                   ["type"] = true,
+                  ["uname"] = true,
+                  ["uniq"] = true,
                   ["wc"] = true,
                   ["which"] = true,
+                  ["whoami"] = true,
                   ["yq"] = true,
                 }
-                local sub_allowed = {
-                  go = { "test", "vet", "build", "mod", "fmt", "run" },
-                  git = { "status", "log", "diff", "show", "branch", "stash" },
-                  kubectl = { "get", "describe", "logs", "explain", "api%-resources" },
-                  docker = { "ps", "images", "logs", "inspect" },
+                -- Commands allowed as a prefix — any subcommand that survives
+                -- the denylist above is auto-approved.
+                local prefix_allowed = {
+                  ["docker"] = true,
+                  ["git"] = true,
+                  ["go"] = true,
+                  ["kubectl"] = true,
                 }
 
                 local all_allowed = true
                 for _, seg in ipairs(segments) do
-                  seg = vim.trim(seg)
-                  local seg_first = vim.split(seg, " ")[1]
-
-                  if simple_allowed[seg_first] then
-                    -- ok
-                  elseif sub_allowed[seg_first] then
-                    local matched = false
-                    for _, sub in ipairs(sub_allowed[seg_first]) do
-                      if seg:match("^" .. seg_first .. "%s+" .. sub) then
-                        matched = true
-                        break
-                      end
-                    end
-                    if not matched then
-                      all_allowed = false
-                      break
-                    end
-                  else
+                  local first = vim.split(seg, " ")[1]
+                  if not simple_allowed[first] and not prefix_allowed[first] then
                     all_allowed = false
                     break
                   end
