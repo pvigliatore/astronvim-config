@@ -131,7 +131,7 @@ return {
             opts = { require_approval_before = true },
           },
           -- External commands still require approval (default)
-          ["cmd_runner"] = {
+          ["run_command"] = {
             opts = {
               require_approval_before = function(tool, _tools)
                 local cmd = vim.trim(tool.args.cmd)
