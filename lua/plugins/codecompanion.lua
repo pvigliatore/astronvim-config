@@ -226,6 +226,7 @@ return {
                 -- ── Allowlist: auto-approve if every segment is allowed ──
                 -- Commands that are safe regardless of arguments.
                 local simple_allowed = {
+                  ["acli"] = true,
                   ["basename"] = true,
                   ["cat"] = true,
                   ["cd"] = true,
