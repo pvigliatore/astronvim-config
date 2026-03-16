@@ -67,6 +67,17 @@ return {
         -- this is useful for naming menus
         -- ["<Leader>b"] = { desc = "Buffers" },
 
+        -- Diagnostics
+        ["<Leader>D"] = { desc = "Diagnostics" },
+        ["<Leader>Df"] = {
+          function() vim.diagnostic.setloclist { open = true } end,
+          desc = "File diagnostics (loclist)",
+        },
+        ["<Leader>Da"] = {
+          function() vim.diagnostic.setqflist { open = true } end,
+          desc = "All diagnostics (quickfix)",
+        },
+
         -- setting a mapping to false will disable it
         -- ["<C-S>"] = false,
       },
