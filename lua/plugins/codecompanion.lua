@@ -75,6 +75,22 @@ return {
           ".cursor/skills/**/*.md",
         },
       },
+      jira_execution = {
+        description = "Jira-related skills (manage, evaluate, write, and break down tickets)",
+        files = {
+          "~/projects/skills/product/jira/SKILL.md",
+          "~/projects/skills/product/jira-ticket-todos/SKILL.md",
+        },
+      },
+      jira_writing = {
+        description = "Skills for writing Jira tickets",
+        files = {
+          "~/projects/skills/product/jira/SKILL.md",
+          "~/projects/skills/product/jira-ticket-todos/SKILL.md",
+          "~/projects/skills/product/jira-write-quality-ticket/SKILL.md",
+          "~/projects/skills/product/jira-evaluate-ticket-quality/SKILL.md",
+        },
+      },
       opts = {
         chat = {
           autoload = { "default", "my_rules" },
@@ -133,7 +149,7 @@ return {
           -- External commands still require approval (default)
           ["run_command"] = {
             opts = {
-              require_approval_before = function(tool, _tools)
+              require_approval_before = function(tool, _)
                 local cmd = vim.trim(tool.args.cmd)
 
                 -- Strip harmless shell redirections before splitting so they
