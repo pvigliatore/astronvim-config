@@ -11,6 +11,26 @@ return {
             ["<Leader>a"] = { desc = "AI Assistant" },
             ["<Leader>aa"] = { "<Cmd>CodeCompanionActions<CR>", desc = "Actions Pallete" },
             ["<Leader>ac"] = { "<Cmd>CodeCompanionChat<CR>", desc = "New Chat" },
+            ["<Leader>ar"] = {
+              function()
+                local rules_helpers = require "codecompanion.interactions.chat.rules.helpers"
+                local items = rules_helpers.list {}
+
+                vim.ui.select(items, {
+                  prompt = "Open chat with rules:",
+                  format_item = function(item)
+                    return item.name .. (item.description and " — " .. item.description or "")
+                  end,
+                }, function(selected)
+                  if not selected then return end
+
+                  local args = {}
+                  args.callbacks = rules_helpers.add_callbacks(args, { selected.name })
+                  require("codecompanion").chat(args)
+                end)
+              end,
+              desc = "New Chat with Rules",
+            },
             ["<Leader>at"] = { "<Cmd>CodeCompanionChat Toggle<CR>", desc = "Toggle Chat" },
           },
         },
@@ -93,8 +113,58 @@ return {
       },
       opts = {
         chat = {
-          autoload = { "default", "my_rules" },
+          autoload = {},
           enabled = true,
+        },
+      },
+    },
+    prompt_library = {
+      ["Eng: Jira Execution"] = {
+        interaction = "chat",
+        description = "Chat with Jira execution skills",
+        rules = { "jira_execution" },
+        opts = {
+          index = 10,
+          is_slash_cmd = false,
+          short_name = "jira-exec",
+        },
+        prompts = {
+          {
+            role = "user",
+            content = "I need help with Jira ticket execution.",
+          },
+        },
+      },
+      ["Eng: Jira Writing"] = {
+        interaction = "chat",
+        description = "Chat with Jira writing skills",
+        rules = { "jira_writing" },
+        opts = {
+          index = 11,
+          is_slash_cmd = false,
+          short_name = "jira-write",
+        },
+        prompts = {
+          {
+            role = "user",
+            content = "I need help writing Jira tickets.",
+          },
+        },
+      },
+      ["Dev: Portfolio History"] = {
+        interaction = "chat",
+        description = "Chat with portfolio history skills",
+        rules = { "default", "my_rules", "portfolio_history" },
+        opts = {
+          index = 12,
+          is_slash_cmd = false,
+          short_name = "portfolio",
+        },
+        prompts = {
+          {
+            role = "user",
+            content = "I need help with the portfolio history project.",
+          },
         },
       },
     },
