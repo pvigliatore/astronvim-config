@@ -12,11 +12,6 @@ vim.keymap.set("n", "-", "<CMD>Oil<CR>", { desc = "Open parent directory" })
 -- Select all text
 vim.keymap.set("n", "<C-a>", "ggVG", { desc = "Select All" })
 
--- Undo default LSP keymaps
-vim.keymap.del("n", "gra")
-vim.keymap.del("n", "grn")
-vim.keymap.del("n", "grr")
-
 -- This is where you enable features that only work
 -- if there is a language server active in the file
 vim.api.nvim_create_autocmd("LspAttach", {
@@ -24,14 +19,31 @@ vim.api.nvim_create_autocmd("LspAttach", {
   callback = function(event)
     local opts = { buffer = event.buf }
 
+    -- go to
+    vim.keymap.set("n", "gI", "<cmd>lua vim.lsp.buf.implementation()<cr>", {
+      buffer = event.buf,
+      desc = "Go to Implementations",
+    })
+
+    vim.keymap.set("n", "gd", "<cmd>lua vim.lsp.buf.definition()<cr>", {
+      buffer = event.buf,
+      desc = "Declaration / Defintion",
+    })
+
+    vim.keymap.set("n", "go", "<cmd>lua vim.lsp.buf.type_definition()<cr>", {
+      buffer = event.buf,
+      desc = "Type Definition",
+    })
+
+    vim.keymap.set("n", "gr", "<cmd>lua vim.lsp.buf.references()<cr>", {
+      buffer = event.buf,
+      desc = "References / Callers",
+    })
+
     -- Hover seems to work already
     vim.keymap.set("n", "<space>la", "<cmd>lua vim.lsp.buf.code_action({apply=true}) <cr>", opts)
     vim.keymap.set("n", "<F2>", "<cmd>lua vim.lsp.buf.rename()<cr>", opts)
     vim.keymap.set("n", "gD", "<cmd>lua vim.lsp.buf.declaration()<cr>", opts)
-    vim.keymap.set("n", "gd", "<cmd>lua vim.lsp.buf.definition()<cr>", opts)
-    vim.keymap.set("n", "gI", "<cmd>lua vim.lsp.buf.implementation()<cr>", opts)
-    vim.keymap.set("n", "go", "<cmd>lua vim.lsp.buf.type_definition()<cr>", opts)
-    vim.keymap.set("n", "gr", "<cmd>lua vim.lsp.buf.references()<cr>", opts)
     vim.keymap.set("n", "H", "<cmd>lua vim.lsp.buf.signature_help()<cr>", opts)
     vim.keymap.set({ "n", "x" }, "<F3>", "<cmd>lua vim.lsp.buf.format({async = true})<cr>", opts)
     vim.keymap.set("n", "<F4>", "<cmd>lua vim.lsp.buf.code_action()<cr>", opts)
