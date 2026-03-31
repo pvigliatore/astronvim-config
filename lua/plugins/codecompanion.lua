@@ -38,6 +38,26 @@ return {
     },
   },
   init = function()
+    -- Move user prompts (those with an explicit opts.index) to the top of
+    -- the action palette, sorted by index. Everything else keeps its
+    -- original order and appears after them.
+    local actions = require "codecompanion.actions"
+    local orig_set_items = actions.set_items
+    actions.set_items = function(context)
+      local items = orig_set_items(context)
+      local user, rest = {}, {}
+      for _, item in ipairs(items) do
+        if item.opts and item.opts.index then
+          table.insert(user, item)
+        else
+          table.insert(rest, item)
+        end
+      end
+      table.sort(user, function(a, b) return a.opts.index < b.opts.index end)
+      vim.list_extend(user, rest)
+      return user
+    end
+
     -- Pause auto-save while CodeCompanion tools are running to prevent
     -- writes that conflict with in-flight file edits.
     local group = vim.api.nvim_create_augroup("CodeCompanionAutoSave", { clear = true })
@@ -76,34 +96,26 @@ return {
       },
     },
     rules = {
-      my_rules = {
-        description = "Rules that should always be applied",
+      manage_rule_groups = {
+        description = "Manage my rule groups with discovery of new skills",
+        files = { ".cursor/skills/manage-skills/*" },
+      },
+      current_project_rules = {
+        description = "Rules from the current project",
+        files = { ".cursor/rules/**/*.md" },
+      },
+      current_project_skills = {
+        description = "Skills within the current project",
+        files = { ".cursor/skills/**/*.md" },
+      },
+      global_rules = {
+        description = "System level rules",
         files = {
-          ".cursor/rules/**/*.md",
           "~/projects/ai-prompts/rules/**/*.md",
         },
       },
-      portfolio_history = {
-        description = "Skills relevant to the portfolio history project",
-        files = {
-          "~/projects/ai-prompts/skills/portfolio-history/*.md",
-        },
-      },
-      project_skills = {
-        description = "Find skills in project folders",
-        files = {
-          ".cursor/skills/**/*.md",
-        },
-      },
-      jira_execution = {
+      jira = {
         description = "Jira-related skills (manage, evaluate, write, and break down tickets)",
-        files = {
-          "~/projects/skills/product/jira/SKILL.md",
-          "~/projects/skills/product/jira-ticket-todos/SKILL.md",
-        },
-      },
-      jira_writing = {
-        description = "Skills for writing Jira tickets",
         files = {
           "~/projects/skills/product/jira/SKILL.md",
           "~/projects/skills/product/jira-ticket-todos/SKILL.md",
@@ -111,6 +123,33 @@ return {
           "~/projects/skills/product/jira-evaluate-ticket-quality/SKILL.md",
         },
       },
+      metabase = {
+        description = "Query data from metabase",
+        files = {
+          "~/projects/skills/data/metabase-query/*",
+        },
+      },
+      onyx = {
+        description = "Search with Onyx",
+        files = {
+          "~/projects/skills/data/onyx-search/*",
+        },
+      },
+      infra = {
+        description = "Work with the infra repo",
+        files = {
+          "~/projects/skills/eng/infra/*",
+        },
+      },
+
+      -- not sure about these ones
+      portfolio_history = {
+        description = "Skills relevant to the portfolio history project",
+        files = {
+          "~/projects/ai-prompts/skills/portfolio-history/*.md",
+        },
+      },
+
       opts = {
         chat = {
           autoload = {},
@@ -151,19 +190,19 @@ return {
           },
         },
       },
-      ["Dev: Portfolio History"] = {
+      ["00 - Dev: Portfolio History"] = {
         interaction = "chat",
         description = "Chat with portfolio history skills",
-        rules = { "default", "my_rules", "portfolio_history" },
+        rules = { "default", "current_project_rules", "global_rules" },
         opts = {
-          index = 12,
+          index = 1,
           is_slash_cmd = false,
           short_name = "portfolio",
         },
         prompts = {
           {
             role = "user",
-            content = "I need help with the portfolio history project.",
+            content = "",
           },
         },
       },
