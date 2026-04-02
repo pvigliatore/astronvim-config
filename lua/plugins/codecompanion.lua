@@ -95,73 +95,52 @@ return {
         enabled = false,
       },
     },
-    rules = {
-      manage_rule_groups = {
-        description = "Manage my rule groups with discovery of new skills",
-        files = { ".cursor/skills/manage-skills/*" },
-      },
-      current_project_rules = {
+    rules = (function()
+      local discover = require "plugins.codecompanion.discover_rules"
+
+      -- Discover rule groups from skill/rule source directories.
+      -- Subdirectories → one rule group each; loose .md files → one group per file.
+      local groups = discover.discover {
+        { path = ".cursor/skills", prefix = "project" },
+        { path = "~/projects/skills/eng" },
+        { path = "~/projects/skills/product" },
+        { path = "~/projects/skills/data" },
+        { path = "~/projects/skills/general" },
+        { path = "~/projects/skills/design" },
+        { path = "~/projects/skills/solutions" },
+        { path = "~/projects/skills/meta" },
+        { path = "~/projects/skills/trading" },
+        { path = "~/projects/ai-prompts/skills", prefix = "global" },
+      }
+
+      -- Static groups that don't follow the directory-per-skill convention.
+      groups.current_project_rules = {
         description = "Rules from the current project",
         files = { ".cursor/rules/**/*.md" },
-      },
-      current_project_skills = {
+      }
+      groups.current_project_skills = {
         description = "Skills within the current project",
         files = { ".cursor/skills/**/*.md" },
-      },
-      global_rules = {
+      }
+      groups.global_rules = {
         description = "System level rules",
-        files = {
-          "~/projects/ai-prompts/rules/**/*.md",
-        },
-      },
-      jira = {
-        description = "Jira-related skills (manage, evaluate, write, and break down tickets)",
-        files = {
-          "~/projects/skills/product/jira/SKILL.md",
-          "~/projects/skills/product/jira-ticket-todos/SKILL.md",
-          "~/projects/skills/product/jira-write-quality-ticket/SKILL.md",
-          "~/projects/skills/product/jira-evaluate-ticket-quality/SKILL.md",
-        },
-      },
-      metabase = {
-        description = "Query data from metabase",
-        files = {
-          "~/projects/skills/data/metabase-query/*",
-        },
-      },
-      onyx = {
-        description = "Search with Onyx",
-        files = {
-          "~/projects/skills/data/onyx-search/*",
-        },
-      },
-      infra = {
-        description = "Work with the infra repo",
-        files = {
-          "~/projects/skills/eng/infra/*",
-        },
-      },
+        files = { "~/projects/ai-prompts/rules/**/*.md" },
+      }
 
-      -- not sure about these ones
-      portfolio_history = {
-        description = "Skills relevant to the portfolio history project",
-        files = {
-          "~/projects/ai-prompts/skills/portfolio-history/*.md",
-        },
-      },
-
-      opts = {
+      groups.opts = {
         chat = {
-          autoload = {},
+          autoload = { "current_project_rules", "global_rules" },
           enabled = true,
         },
-      },
-    },
+      }
+
+      return groups
+    end)(),
     prompt_library = {
       ["Eng: Jira Execution"] = {
         interaction = "chat",
         description = "Chat with Jira execution skills",
-        rules = { "jira_execution" },
+        rules = { "jira", "jira_ticket_todos" },
         opts = {
           index = 10,
           is_slash_cmd = false,
@@ -177,7 +156,7 @@ return {
       ["Eng: Jira Writing"] = {
         interaction = "chat",
         description = "Chat with Jira writing skills",
-        rules = { "jira_writing" },
+        rules = { "jira_write_quality_ticket", "jira_evaluate_ticket_quality" },
         opts = {
           index = 11,
           is_slash_cmd = false,
